@@ -162,6 +162,7 @@ def prompts_for_story(story):
 
 
 @app.route("/story/prompts", methods=["POST"])
+@jwt_required()
 def create_queries():
     openai.api_key = "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"
 
