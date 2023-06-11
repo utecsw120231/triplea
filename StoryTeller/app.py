@@ -64,6 +64,68 @@ def register_user():
     return "", 200
 
 
+def login_regular(email, password):
+    # TODO: Extract to somewhere
+    secret = "my_secret_key"
+
+    dynamodb = boto3.resource("dynamodb")
+    table = dynamodb.Table("storyteller_bot")
+
+    response = table.get_item(Key={"user_email": email, "type": "user"})
+
+    if "Item" not in response:
+        return {"ok": False, "msg": "User not registered"}, 404
+
+    user = response["Item"]
+
+    if password != user["password"]:
+        return {"ok": False, "msg": "Wrong password"}, 401
+
+    expiration_time = str(datetime.datetime.now() + datetime.timedelta(days=1))
+
+    token = jwt.encode(
+        {"email": email, "expires_on": expiration_time}, secret, algorithm="HS256"
+    )
+
+    return {
+        "ok": True,
+        "email": user["user_email"],
+        "name": user["username"],
+        "profile_picture": "https://picsum.photos/128/128",
+        "token": token,
+    }, 200
+
+
+@app.route("/user/login", methods=["POST"])
+def login_user():
+    j = request.json
+
+    if "type" not in j:
+        return {"ok": False, "msg": "Missing `type`"}, 400
+
+    t = j["type"]
+
+    if t == "google":
+        if "token" not in j:
+            return {"ok": False, "msg": "Missing `token` in google authentication"}, 400
+
+        token = j["token"]
+
+        # idinfo = id_token.verify_oauth2_token(token, requests.Request())
+
+        return {"ok": False, "msg": "Not implemented"}, 500
+
+    if "email" not in j:
+        return {"ok": False, "msg": "Missing `email`"}
+    if "password" not in j:
+        return {"ok": False, "msg": "Missing `password`"}
+
+    email = j["email"]
+    password = j["password"]
+
+    return login_regular(email, password)
+
+
 def get_dalle_images(query, n=1, size="256x256"):
     response = openai.Image.create(prompt=query, n=n, size="256x256")
     ret = [r["url"] for r in response["data"]]
