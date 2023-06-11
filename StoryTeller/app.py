@@ -29,6 +29,41 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
 
+@app.route("/user", methods=["POST"])
+def register_user():
+    j = request.json
+
+    if "email" not in j:
+        return {"ok": False, "msg": "Missing `email`."}, 400
+    if "username" not in j:
+        return {"ok": False, "msg": "Missing `username`."}, 400
+    if "password" not in j:
+        return {"ok": False, "msg": "Missing `password`."}, 400
+
+    email = j["email"]
+    username = j["username"]
+    password = j["password"]
+
+    dynamodb = boto3.resource("dynamodb")
+    table = dynamodb.Table("storyteller_bot")
+
+    response = table.get_item(Key={"user_email": email, "type": "user"})
+
+    if "Item" in response:
+        return {"ok": False, "msg": "Email is already registered"}, 409
+
+    table.put_item(
+        Item={
+            "user_email": email,
+            "type": "user",
+            "username": username,
+            "password": password,
+        }
+    )
+
+    return "", 200
+
+
 def get_dalle_images(query, n=1, size="256x256"):
     response = openai.Image.create(prompt=query, n=n, size="256x256")
     ret = [r["url"] for r in response["data"]]
