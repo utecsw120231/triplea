@@ -61,7 +61,7 @@ def register_user():
         }
     )
 
-    return "", 200
+    return login_regular(email, password)
 
 
 def login_regular(email, password):
