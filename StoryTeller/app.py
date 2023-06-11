@@ -132,8 +132,22 @@ def login_user():
 
 
 def get_dalle_images(query, n=1, size="256x256"):
-    response = openai.Image.create(prompt=query, n=n, size="256x256")
-    ret = [r["url"] for r in response["data"]]
+    response = openai.Image.create(
+        prompt=query, n=n, size="256x256", response_format="b64_json"
+    )
+
+    s3 = boto3.client("s3")
+
+    ret = []
+    for image_b64 in (d["b64_json"] for d in response["data"]):
+        image = base64.b64decode(image_b64)
+        image_hash = hashlib.sha256(image).hexdigest()
+
+        s3.upload_fileobj(BytesIO(image), "sb-user-images", image_hash)
+
+        url = flask.url_for("get_image", image_hash=image_hash)
+        ret.append(url)
+
     return ret
 
 
