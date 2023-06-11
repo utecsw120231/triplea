@@ -7,6 +7,8 @@ import jwt
 import openai
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask_jwt_extended import (JWTManager, create_access_token, get_jwt,
+                                get_jwt_identity, jwt_required)
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -17,6 +19,9 @@ app.config[
     "SQLALCHEMY_DATABASE_URI"
 ] = "postgresql://postgres:3141@localhost:5432/storytellerbd"
 db = SQLAlchemy(app)
+
+app.config["JWT_SECRET_KEY"] = "super-secret"
+jwt = JWTManager(app)
 
 
 class User(db.Model):
@@ -85,9 +90,7 @@ def login_regular(email, password):
 
     expiration_time = str(datetime.datetime.now() + datetime.timedelta(days=1))
 
-    token = jwt.encode(
-        {"email": email, "expires_on": expiration_time}, secret, algorithm="HS256"
-    )
+    token = create_access_token(identity=email)
 
     return {
         "ok": True,
