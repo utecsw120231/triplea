@@ -162,17 +162,16 @@ def prompts_for_story(story):
 def create_queries():
     openai.api_key = "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"
 
-    """
-    j = json.loads(event["body"])
-    story = j["story"]
+    j = request.json
+    if "story" not in j:
+        return {"ok": False, "msg": "Missing `story`."}, 400
 
-    """
-    story = request.json.get("story")
+    story = j["story"]
 
     answer = prompts_for_story(story)
     ret = answer.split("\n")
-    return jsonify({"ok": True, "queries": ret})
 
+    return {"ok": True, "queries": ret}
 
 @app.route("/generate_images", methods=["POST"])
 def generate_images():
