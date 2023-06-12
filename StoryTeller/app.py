@@ -191,17 +191,26 @@ def create_queries():
 
     return {"ok": True, "queries": ret}
 
-@app.route("/generate_images", methods=["POST"])
+
+@app.route("/image/create", methods=["POST"])
+@jwt_required()
 def generate_images():
     openai.api_key = "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"
-    query = request.json.get("query", "")
-    for_real = request.json.get("for_real", False)
-    n_images = request.json.get("n_images", 1)
+
+    j = request.json
+
+    if "query" not in j:
+        return {"ok": False, "msg": "Missing `query`."}, 400
+
+    query = j["query"]
+    for_real = j.get("for_real", False)
+    n_images = j.get("n_images", 1)
+
     if not for_real:
         images = ["https://picsum.photos/256/256" for _ in range(n_images)]
     else:
         images = get_dalle_images(query, n_images)
-    return jsonify({"ok": True, "images": images})
+    return {"ok": True, "images": images}
 
 
 if __name__ == "__main__":
