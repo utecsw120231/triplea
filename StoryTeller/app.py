@@ -213,5 +213,17 @@ def generate_images():
     return {"ok": True, "images": images}
 
 
+@app.route("/image/<image_hash>", methods=["GET"])
+@jwt_required()
+def get_image(image_hash):
+    s3 = boto3.client("s3")
+
+    image = BytesIO()
+    s3.download_fileobj("sb-user-images", image_hash, image)
+
+    image.seek(0)
+    return flask.send_file(image, mimetype="image/png")
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
