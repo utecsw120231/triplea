@@ -209,7 +209,11 @@ def generate_images():
     if "query" not in j:
         return {"ok": False, "msg": "Missing `query`."}, 400
 
+    if "story_id" not in j:
+        return {"ok": False, "msg": "Missing `story_id`."}, 400
+
     query = j["query"]
+    story_id = j["story_id"]
     for_real = j.get("for_real", False)
     n_images = j.get("n_images", 1)
 
@@ -221,6 +225,20 @@ def generate_images():
             flask.url_for("get_image", image_hash=image_hash)
             for image_hash in image_hashes
         ]
+
+        user_email = get_jwt_identity()
+
+        dynamodb = boto3.resource("dynamodb")
+        table = dynamodb.Table("storyteller_bot")
+        for i_hash in image_hashes:
+            table.put_item(
+                Item={
+                    "user_email": user_email,
+                    "type": "image",
+                    "story_id": story_id,
+                    "image_hash": i_hash,
+                }
+            )
 
     return {"ok": True, "images": images}
 
