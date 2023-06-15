@@ -153,8 +153,7 @@ def get_dalle_images(query, n=1, size="256x256"):
 
         s3.upload_fileobj(BytesIO(image), "sb-user-images", image_hash)
 
-        url = flask.url_for("get_image", image_hash=image_hash)
-        ret.append(url)
+        ret.append(image_hash)
 
     return ret
 
@@ -217,7 +216,12 @@ def generate_images():
     if not for_real:
         images = ["https://picsum.photos/256/256" for _ in range(n_images)]
     else:
-        images = get_dalle_images(query, n_images)
+        image_hashes = get_dalle_images(query, n_images)
+        images = [
+            flask.url_for("get_image", image_hash=image_hash)
+            for image_hash in image_hashes
+        ]
+
     return {"ok": True, "images": images}
 
 
