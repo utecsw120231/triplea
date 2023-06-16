@@ -1,0 +1,429 @@
+{
+  "uuid": "94370d72-2bd1-4802-9310-6352d48e94eb",
+  "lastMigration": 27,
+  "name": "Storyteller Bot",
+  "endpointPrefix": "",
+  "latency": 0,
+  "port": 3000,
+  "hostname": "",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "3313fc95-6d2c-48d3-a34b-0cfc1ba8a8e3",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "user",
+      "responses": [
+        {
+          "uuid": "38cd4e96-1695-4591-97c6-985c85a59dd3",
+          "body": "{\n  \"email\": \"{{body 'email'}}\",\n  \"name\": \"{{body 'username'}}\",\n  \"ok\": true,\n  \"profile_picture\": \"https://picsum.photos/128/128\",\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY4NjkzMjIzOSwianRpIjoiNDdiMTZkNTMtZGJmZC00ZTE4LTkzZDMtYmQ5ZjEwZGVkYWM1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImExOUBob21lLmxvY2FsIiwibmJmIjoxNjg2OTMyMjM5LCJleHAiOjE2ODY5Mzk0Mzl9.qYLrcjlCpksx0Us2qLU5Ppmm55d1x2EI5q_vBj-EDxo\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "User created",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "90a3dde6-13ab-4744-9704-c795f3a2d48f",
+          "body": "{\n  \"msg\": \"Email is already registered\",\n  \"ok\": false\n}\n",
+          "latency": 0,
+          "statusCode": 409,
+          "label": "User already registered",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "2ff0bd53-384a-40f0-a936-23051dbf9446",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "user/login",
+      "responses": [
+        {
+          "uuid": "68ee5439-ad69-4714-bf90-53115f8d58bf",
+          "body": "{\n  \"email\": \"{{body 'email'}}\",\n  \"name\": \"{{ faker 'internet.userName' }}\",\n  \"ok\": true,\n  \"profile_picture\": \"https://picsum.photos/128/128\",\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTY4NjkzMjIzOSwianRpIjoiNDdiMTZkNTMtZGJmZC00ZTE4LTkzZDMtYmQ5ZjEwZGVkYWM1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6ImExOUBob21lLmxvY2FsIiwibmJmIjoxNjg2OTMyMjM5LCJleHAiOjE2ODY5Mzk0Mzl9.qYLrcjlCpksx0Us2qLU5Ppmm55d1x2EI5q_vBj-EDxo\"\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Login successfully",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "41bfc3fb-e4ae-4e51-8f77-c1ceb4140ab0",
+          "body": "{\n  \"msg\": \"Wrong password\",\n  \"ok\": false\n}\n",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Failed password",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "e7eb3c0a-bc7f-42dc-8949-b5bcc7db3efd",
+          "body": "{\n  \"msg\": \"User not registered\",\n  \"ok\": false\n}\n",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "User not registered",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "63e2df3d-fd15-4409-991b-9fc658d6d24b",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "story/prompts",
+      "responses": [
+        {
+          "uuid": "d0cc82f9-e378-4855-a96f-e0285f4fe855",
+          "body": "{\n  \"ok\": true,\n  \"queries\": [\n    \"1. Generate an image of a soft and fluffy rabbit.\",\n    \"2. Generate an image of a toybox with a lid.\",\n    \"3. Generate an image of a boy opening a toybox.\",\n    \"4. Generate an image of a boy picking up a rabbit from the toybox.\",\n    \"5. Generate an image of newer, brighter toys with special tricks inside the toybox.\",\n    \"6. Generate an image of buttons on one of the new toys.\",\n    \"7. Generate an image of a toy moving in response to a button press.\",\n    \"8. Generate an image of a toy bouncing high.\",\n    \"9. Generate an image of the Velveteen Rabbit sitting quietly among the new toys.\",\n    \"10. Generate an image of the other toys talking with pride.\",\n    \"11. Generate an image of the Velveteen Rabbit looking sad.\"\n  ]\n}\n\n",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Queries created",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "da0328bd-e20a-4904-a2ed-9aacef52f621",
+      "type": "http",
+      "documentation": "Get images list",
+      "method": "get",
+      "endpoint": "image",
+      "responses": [
+        {
+          "uuid": "1b0672c7-9de5-46f0-8ebc-7ca8919b2667",
+          "body": "{\n  \"1\": [\n    [\n      \"A yellow bear plushie\",\n      \"/image/8acbf9051bca2f29b253fe6e241701f4dfee0ab0141c16c089b82de570f4e22b\"\n    ],\n    [\n      \"A green bear plushie\",\n      \"/image/c7d24c5f8066ef9210869fa93aab08a33ff866b00890dcc9ab204a29ea0def10\"\n    ]\n  ],\n  \"2\": [\n    [\n      \"A red bear plushie\",\n      \"/image/8acbf9051bca2f29b253jali92rn01f4dfee0ab0141c16c089b82de570f4e22b\"\n    ],\n    [\n      \"A blue bear plushie\",\n      \"/image/c7d24c5fy3uhdojwkico84uf3aab08a33ff866b00890dcc9ab204a29ea0def10\"\n    ]\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "e595d8c7-de27-4ec3-b6c4-812945dd5095",
+      "type": "http",
+      "documentation": "Get image",
+      "method": "get",
+      "endpoint": "image/[a-z0-9]+",
+      "responses": [
+        {
+          "uuid": "a615b3ab-e8e3-436c-8fb1-9cd98526c4a0",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "FILE",
+          "filePath": "./p1.png",
+          "databucketID": "",
+          "sendFileAsBody": true,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "98752863-d508-4364-ae45-de1f631138d2",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "image/create",
+      "responses": [
+        {
+          "uuid": "59d3443a-5397-4fcf-ac05-7c08b0c57700",
+          "body": "{\n  \"images\": [\n    {{# repeat (body 'n_images') }}\n    \"/image/{{faker 'random.alphaNumeric' 64}}\"\n    {{/ repeat }}\n  ],\n  \"ok\": true\n}\n",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "f85463e7-e5d8-4979-a899-bff53727e0e8",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "story",
+      "responses": [
+        {
+          "uuid": "fcaacead-9e34-4f89-ba93-df2a9c18c4b2",
+          "body": "{\n  \"ok\": true,\n  \"stories\": [\n    [\n      1,\n      \"S1\",\n      \"Fri, 16 Jun 2023 15:09:58 GMT\"\n    ],\n    [\n      2,\n      \"S1\",\n      \"Fri, 16 Jun 2023 18:38:24 GMT\"\n    ]\n  ]\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "901ba510-04e5-4ba0-a41a-31ed7bb9afe9",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "story",
+      "responses": [
+        {
+          "uuid": "b103a45e-c31c-4973-8f1f-a88c2e0df163",
+          "body": "{\n  \"ok\": true,\n  \"story_id\": {{faker 'datatype.number' min=1}}\n}\n",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "4af5a094-9f7f-45bb-a80c-068fb7e08827",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "style",
+      "responses": [
+        {
+          "uuid": "e1351e4f-8bf4-43b1-a57a-11ebc6ca63ea",
+          "body": "{\n  \"ok\": true,\n  \"styles\": [\n    [\n      \"Charles Dana Gibson style.\"\n    ],\n    [\n      \"Antique Grunge style.\"\n    ]\n  ]\n}\n",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "38c75914-e949-430b-865a-12956a3a413c",
+      "type": "http",
+      "documentation": "",
+      "method": "post",
+      "endpoint": "style",
+      "responses": [
+        {
+          "uuid": "90c621ff-ef4e-4bfa-8c45-735d412e28cf",
+          "body": "{\n  \"ok\": true\n}\n",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "3313fc95-6d2c-48d3-a34b-0cfc1ba8a8e3"
+    },
+    {
+      "type": "route",
+      "uuid": "2ff0bd53-384a-40f0-a936-23051dbf9446"
+    },
+    {
+      "type": "route",
+      "uuid": "63e2df3d-fd15-4409-991b-9fc658d6d24b"
+    },
+    {
+      "type": "route",
+      "uuid": "da0328bd-e20a-4904-a2ed-9aacef52f621"
+    },
+    {
+      "type": "route",
+      "uuid": "e595d8c7-de27-4ec3-b6c4-812945dd5095"
+    },
+    {
+      "type": "route",
+      "uuid": "98752863-d508-4364-ae45-de1f631138d2"
+    },
+    {
+      "type": "route",
+      "uuid": "f85463e7-e5d8-4979-a899-bff53727e0e8"
+    },
+    {
+      "type": "route",
+      "uuid": "901ba510-04e5-4ba0-a41a-31ed7bb9afe9"
+    },
+    {
+      "type": "route",
+      "uuid": "4af5a094-9f7f-45bb-a80c-068fb7e08827"
+    },
+    {
+      "type": "route",
+      "uuid": "38c75914-e949-430b-865a-12956a3a413c"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [
+    {
+      "key": "Content-Type",
+      "value": "application/json"
+    },
+    {
+      "key": "Access-Control-Allow-Origin",
+      "value": "*"
+    },
+    {
+      "key": "Access-Control-Allow-Methods",
+      "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+    },
+    {
+      "key": "Access-Control-Allow-Headers",
+      "value": "Content-Type, Origin, Accept, Authorization, Content-Length, X-Requested-With"
+    }
+  ],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": []
+}
