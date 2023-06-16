@@ -220,6 +220,10 @@ def get_image(image_hash):
     return flask.send_file(image, mimetype="image/png")
 
 
+def image_hash_to_url(image_hash):
+    return flask.url_for("get_image", image_hash=image_hash)
+
+
 @app.route("/image/create", methods=["POST"])
 @jwt_required()
 def generate_images():
@@ -242,10 +246,7 @@ def generate_images():
         images = ["https://picsum.photos/256/256" for _ in range(n_images)]
     else:
         image_hashes = get_dalle_images(query, n_images)
-        images = [
-            flask.url_for("get_image", image_hash=image_hash)
-            for image_hash in image_hashes
-        ]
+        images = [image_hash_to_url(i_h) for i_h in image_hashes]
 
         user_email = get_jwt_identity()
 
