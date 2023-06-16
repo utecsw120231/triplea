@@ -29,6 +29,13 @@ app.config[
 db = SQLAlchemy(app)
 
 app.config["JWT_SECRET_KEY"] = "super-secret"
+
+app.config[
+    "DB_HOST"
+] = "storyteller-bot-instance-1.cwtcnyqx5tws.us-east-1.rds.amazonaws.com"
+app.config["DB_USER"] = "postgres"
+app.config["DB_PASS"] = "REDACTED"
+
 jwt = JWTManager(app)
 
 
