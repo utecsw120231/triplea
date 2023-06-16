@@ -318,12 +318,14 @@ def stories():
             """
         INSERT INTO story
         VALUES (DEFAULT, %s, %s)
+        RETURNING story_id
         """,
             (user_email, title),
         )
+        story_id = cur.fetchone()[0]
         get_db().commit()
 
-    return {"ok": True}, 200
+    return {"ok": True, "story_id": story_id}, 200
 
 
 @app.route("/style", methods=["GET", "POST"])
