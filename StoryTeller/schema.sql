@@ -1,0 +1,14 @@
+DROP TABLE IF EXISTS story CASCADE;
+DROP TABLE IF EXISTS image CASCADE;
+
+CREATE TABLE story (
+  story_id SERIAL PRIMARY KEY,
+  user_email TEXT NOT NULL,
+  title TEXT NOT NULL
+);
+
+CREATE TABLE image (
+  hash TEXT PRIMARY KEY,
+  story_id INTEGER NOT NULL,
+  FOREIGN KEY (story_id) REFERENCES story(story_id)
+);
