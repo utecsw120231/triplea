@@ -190,8 +190,6 @@ def prompts_for_story(story):
 @app.route("/story/prompts", methods=["POST"])
 @jwt_required()
 def create_queries():
-    openai.api_key = "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"
-
     j = request.json
     if "story" not in j:
         return {"ok": False, "msg": "Missing `story`."}, 400
@@ -223,8 +221,6 @@ def image_hash_to_url(image_hash):
 @app.route("/image/create", methods=["POST"])
 @jwt_required()
 def generate_images():
-    openai.api_key = "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"
-
     j = request.json
 
     if "query" not in j:
