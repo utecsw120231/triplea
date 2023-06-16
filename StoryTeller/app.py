@@ -259,9 +259,9 @@ def generate_images():
             for i_hash in image_hashes:
                 cur.execute(
                     """
-                    INSERT INTO image VALUES (%s, %s)
+                    INSERT INTO image VALUES (%s, %s, %s)
                     """,
-                    (i_hash, story_id),
+                    (i_hash, query, story_id),
                 )
 
             get_db().commit()
@@ -276,7 +276,7 @@ def get_images():
     with get_db().cursor(row_factory=dict_row) as cur:
         cur.execute(
             """
-            SELECT story_id, hash FROM image JOIN story USING (story_id) WHERE user_email = %s
+            SELECT story_id, hash, query FROM image JOIN story USING (story_id) WHERE user_email = %s
             """,
             (user_email,),
         )
@@ -285,7 +285,7 @@ def get_images():
         for row in cur:
             story_id = row["story_id"]
             ret.setdefault(story_id, list())
-            ret[story_id].append(image_hash_to_url(row["hash"]))
+            ret[story_id].append((row["query"], image_hash_to_url(row["hash"])))
 
     return ret, 200
 
