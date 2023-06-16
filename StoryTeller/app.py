@@ -244,6 +244,17 @@ def generate_images():
     for_real = j.get("for_real", False)
     n_images = j.get("n_images", 1)
 
+    with get_db().cursor() as cur:
+        cur.execute(
+            """
+            SELECT * FROM story
+            WHERE story_id = %s
+            """,
+            (story_id,),
+        )
+        if cur.fetchone() is None:
+            return {"ok": False, "msg": "Given `story_id` does not exist."}
+
     if not for_real:
         images = ["https://picsum.photos/256/256" for _ in range(n_images)]
     else:
@@ -252,17 +263,16 @@ def generate_images():
 
         user_email = get_jwt_identity()
 
-        dynamodb = boto3.resource("dynamodb")
-        table = dynamodb.Table("storyteller_bot")
-        for i_hash in image_hashes:
-            table.put_item(
-                Item={
-                    "user_email": user_email,
-                    "type": "image",
-                    "story_id": story_id,
-                    "image_hash": i_hash,
-                }
-            )
+        with get_db().cursor() as cur:
+            for i_hash in image_hashes:
+                cur.execute(
+                    """
+                    INSERT INTO image VALUES (%s, %s)
+                    """,
+                    (i_hash, story_id),
+                )
+
+            get_db().commit()
 
     return {"ok": True, "images": images}
 
