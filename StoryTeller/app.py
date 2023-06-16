@@ -4,6 +4,8 @@ import hashlib
 import inspect
 from io import BytesIO
 
+from db import get_db, init_app
+
 import boto3
 import flask
 import jwt
@@ -299,4 +301,5 @@ def stories():
 
 
 if __name__ == "__main__":
+    init_app(app)
     app.run(debug=True, port=8080)
