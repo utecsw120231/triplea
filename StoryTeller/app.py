@@ -21,6 +21,7 @@ from flask_jwt_extended import (
 )
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
+from psycopg.rows import dict_row
 
 app = Flask(__name__)
 CORS(app)
@@ -277,8 +278,25 @@ def generate_images():
     return {"ok": True, "images": images}
 
 
+@app.route("/image", methods=["GET"])
+@jwt_required()
+def get_images():
+    user_email = get_jwt_identity()
+    with get_db().cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT story_id, hash FROM image JOIN story USING (story_id) WHERE user_email = %s
+            """,
+            (user_email,),
+        )
 
+        ret = dict()
+        for row in cur:
+            story_id = row["story_id"]
+            ret.setdefault(story_id, list())
+            ret[story_id].append(image_hash_to_url(row["hash"]))
 
+    return ret, 200
 
 
 @app.route("/story", methods=["GET", "POST"])
