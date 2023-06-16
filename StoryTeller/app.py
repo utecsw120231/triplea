@@ -273,7 +273,7 @@ def stories():
         with get_db().cursor() as cur:
             cur.execute(
                 """
-            SELECT story_id, title FROM story
+            SELECT story_id, title, created_at FROM story
             WHERE user_email = %s
             """,
                 (user_email,),
