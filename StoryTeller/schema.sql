@@ -11,6 +11,7 @@ CREATE TABLE story (
 
 CREATE TABLE image (
   hash TEXT PRIMARY KEY,
+  query TEXT,
   story_id INTEGER NOT NULL,
   FOREIGN KEY (story_id) REFERENCES story(story_id)
 );
