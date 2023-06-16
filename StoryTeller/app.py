@@ -4,23 +4,18 @@ import hashlib
 import inspect
 from io import BytesIO
 
-from db import get_db, init_app
-
 import boto3
 import flask
 import openai
 from flask import Flask, request
 from flask_cors import CORS
-from flask_jwt_extended import (
-    JWTManager,
-    create_access_token,
-    get_jwt,
-    get_jwt_identity,
-    jwt_required,
-)
+from flask_jwt_extended import (JWTManager, create_access_token, get_jwt,
+                                get_jwt_identity, jwt_required)
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import check_password_hash, generate_password_hash
 from psycopg.rows import dict_row
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from db import get_db, init_app
 
 app = Flask(__name__)
 CORS(app)
