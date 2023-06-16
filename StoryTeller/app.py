@@ -236,6 +236,8 @@ def generate_images():
 
     if "story_id" not in j:
         return {"ok": False, "msg": "Missing `story_id`."}, 400
+    if type(j["story_id"]) != int:
+        return {"ok": False, "msg": "`story_id` must be an integer"}
 
     query = j["query"]
     story_id = j["story_id"]
