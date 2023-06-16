@@ -32,6 +32,7 @@ app.config[
 db = SQLAlchemy(app)
 
 app.config["JWT_SECRET_KEY"] = "super-secret"
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=2)
 
 app.config[
     "DB_HOST"
