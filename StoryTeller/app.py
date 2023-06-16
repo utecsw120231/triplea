@@ -326,6 +326,42 @@ def stories():
     return {"ok": True}, 200
 
 
+@app.route("/style", methods=["GET", "POST"])
+@jwt_required()
+def styles():
+    user_email = get_jwt_identity()
+
+    if request.method == "GET":
+        with get_db().cursor() as cur:
+            cur.execute(
+                """
+            SELECT style FROM style
+            WHERE user_email = %s
+            """,
+                (user_email,),
+            )
+
+            return {"ok": True, "styles": cur.fetchall()}, 200
+
+    j = request.json
+
+    if "style" not in j:
+        return {"ok": False, "msg": "Missing `style`."}
+    style = j["style"]
+
+    with get_db().cursor() as cur:
+        cur.execute(
+            """
+        INSERT INTO style
+        VALUES (%s, %s)
+        """,
+            (user_email, style),
+        )
+        get_db().commit()
+
+    return {"ok": True}, 200
+
+
 if __name__ == "__main__":
     init_app(app)
     app.run(debug=True, port=8080)
