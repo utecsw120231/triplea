@@ -1,4 +1,4 @@
-import psycopg2
+import psycopg
 
 import click
 from flask import current_app, g
@@ -6,7 +6,7 @@ from flask import current_app, g
 
 def get_db():
     if "db" not in g:
-        g.db = psycopg2.connect(
+        g.db = psycopg.connect(
             host=current_app.config["DB_HOST"],
             user=current_app.config["DB_USER"],
             password=current_app.config["DB_PASS"],
