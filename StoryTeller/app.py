@@ -262,5 +262,41 @@ def get_image(image_hash):
     return flask.send_file(image, mimetype="image/png")
 
 
+@app.route("/story", methods=["GET", "POST"])
+@jwt_required()
+def stories():
+    user_email = get_jwt_identity()
+
+    if request.method == "GET":
+        with get_db().cursor() as cur:
+            cur.execute(
+                """
+            SELECT story_id, title FROM story
+            WHERE user_email = %s
+            """,
+                (user_email,),
+            )
+
+            return {"ok": True, "stories": cur.fetchall()}, 200
+
+    j = request.json
+
+    if "title" not in j:
+        return {"ok": False, "msg": "Missing `title`."}
+    title = j["title"]
+
+    with get_db().cursor() as cur:
+        cur.execute(
+            """
+        INSERT INTO story
+        VALUES (DEFAULT, %s, %s)
+        """,
+            (user_email, title),
+        )
+        get_db().commit()
+
+    return {"ok": True}, 200
+
+
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
