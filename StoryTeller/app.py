@@ -8,7 +8,6 @@ from db import get_db, init_app
 
 import boto3
 import flask
-import jwt
 import openai
 from flask import Flask, request
 from flask_cors import CORS
