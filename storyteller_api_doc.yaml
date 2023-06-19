@@ -1,0 +1,433 @@
+openapi: 3.0.0
+info:
+  title: Story Teller API
+  description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
+  version: 0.1.9
+servers:
+  - url: http://<domain>/
+    description: API
+paths:
+  /user:
+    post:
+      summary: Maneja el registro del usuario.
+      description: Verificar que todos los campos del form de registro han sido llenados correctamente, y  verifica en la base de datos si ya existe el usuario.
+      tags:
+        - Users
+      parameters:
+        - in: query
+          name: Form de registro
+          description: Json con los datos nesesarios para el registro de un usuario.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  username:
+                    type: string
+                  password:
+                    type: string
+            
+      responses:
+        '400':    # status code
+          description: Alguno o varios de los campos recibidos están vacios. 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: false
+                  msg:
+                    type: string
+                    example: Missing username
+                    
+        '409':    # status code
+          description: Ya existe un usuario que se ha registrado con el mismo email. 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: false
+                  msg:
+                    type: string
+                    example: Email is already registered
+                    
+        '200':    # status code
+          description: Registro y logueo realizados con éxiito. 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: true
+                  email:
+                    type: string
+                    example: ntesla@gmail.com
+                  name:
+                    type: string
+                    example: Ntesla
+                  profile_picture:
+                    type: string
+                    example: https://picsum.photos/tesla.jpg
+                  token:
+                    type: string
+                    example: 1234
+  /user/login:
+    post:
+      summary: Maneja el logueo del usuario.
+      description: Verificar que los parametros de logueo son correctos y realizar la consulta a la base de datos para obtener la información del usuario
+      tags:
+        - Users
+      parameters:
+        - in: query
+          name: Form de logueo
+          description: Json con los datos nesesarios para el logueo de un usuario.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  token:
+                    type: string
+                  email:
+                    type: string
+                  password:
+                    type: string
+      responses:
+        '400':    # status code
+          description: Alguno o varios de los campos recibidos están vacios. 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: false
+                  msg:
+                    type: string
+                    example: Missing type
+        '500':    # status code
+          description: Loguin con googleauth no implementado. 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: false
+                  msg:
+                    type: string
+                    example: Not implemented
+        '404':    # status code
+          description: El usuario ingresado no existe en la base de datos. 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: false
+                  msg:
+                    type: string
+                    example: User not registered
+        '401':    # status code
+          description: Contraseña incorrecta.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: false
+                  msg:
+                    type: string
+                    example: Wrong password
+        '200':    # status code
+          description: Logueo realizado con éxito. 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: true
+                  email:
+                    type: string
+                    example: ntesla@gmail.com
+                  name:
+                    type: string
+                    example: Ntesla
+                  profile_picture:
+                    type: string
+                    example: https://picsum.photos/tesla.jpg
+                  token:
+                    type: string
+                    example: 1234
+
+  /image/create:
+    post:
+      summary: Crea las imagenes a partir de una query
+      description: Crea las imagenes con DALL-E y las guarda en la base de datos. 
+      tags:
+        - Images
+      parameters:
+        - in: query
+          name: Form de registro
+          description: Json con los datos nesesarios para el registro de un usuario.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query:
+                    type: string
+                    example: dall-e query
+                  story_id:
+                    type: string
+                  for_real:
+                    type: string
+                    example: boolean
+                  n_images:
+                    type: string
+                    example: integer
+            
+      responses:
+        '400':    # status code
+          description: Alguno o varios de los campos recibidos están vacios. 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: false
+                  msg:
+                    type: string
+                    example: Missing query
+                    
+        '409':    # status code
+          description: No se encontró historia con la id dada. 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: false
+                  msg:
+                    type: string
+                    example: Given `story_id` does not exist.
+                    
+        '200':    # status code
+          description: Se generaron las imagenes correctamente y se insertaron en la base de datos.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  ok:
+                    type: boolean
+                    example: true
+                  images:
+                    type: array
+                    items:
+                      type: string
+                    example: ['url1', 'url2', ..., 'urln']
+                    
+  /image/{image_hash}:
+    get:
+      summary: Devuelve una imagen en especifico con id {image_hash}
+      tags:
+        - Images
+      parameters:
+        - in: path
+          name: image_hash
+          required: true
+          schema:
+            type: string
+            
+      responses:
+        '200':
+          description: Envia un archivo png al cliente
+  
+  /image:
+    get:
+      summary: Retrieve images
+      description: Devuelve una lista de imagenes asociados con su respectiva query.
+      tags:
+        - Images
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  story_id:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        query:
+                          type: string
+                          example: El lobo sopló con fuerza la casa de cemento
+                        url:
+                          type: string
+                          example: https://www.images.com/h1l4.jpg
+  /story:
+    get:
+      summary: Obtener historias
+      description: Obtiene una lista de historias asociadas al usuario autenticado.
+      tags:
+        - Story query
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  stories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        story_id:
+                          type: integer
+                        title:
+                          type: string
+                        created_at:
+                          type: string
+    post:
+      summary: Crear historia
+      description: Crea una nueva historia para el usuario autenticado.
+      tags:
+        - Story query
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Título de la historia a crear.
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  story_id:
+                    type: integer
+  /story/prompts:
+    post:
+      summary: Crear consultas
+      description: Crea consultas basadas en la historia proporcionada.
+      tags:
+        - Story query
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                story:
+                  type: string
+                  description: La historia para la cual generar las consultas.
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  queries:
+                    type: array
+                    items:
+                      type: string
+                    example: [query1, query2, ..., queryn]
+  
+  /style:
+    get:
+      summary: Obtener estilos
+      description: Obtiene una lista de estilos asociados al usuario autenticado.
+      tags:
+        - Style
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  styles:
+                    type: array
+                    items:
+                      type: string
+    post:
+      summary: Crear estilo
+      description: Crea un nuevo estilo para el usuario autenticado.
+      tags:
+        - Style
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                style:
+                  type: string
+                  description: El estilo a crear.
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
