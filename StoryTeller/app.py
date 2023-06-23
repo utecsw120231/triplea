@@ -134,9 +134,9 @@ def login_user():
         return {"ok": False, "msg": "Not implemented"}, 500
 
     if "email" not in j:
-        return {"ok": False, "msg": "Missing `email`"}
+        return {"ok": False, "msg": "Missing `email`"}, 400
     if "password" not in j:
-        return {"ok": False, "msg": "Missing `password`"}
+        return {"ok": False, "msg": "Missing `password`"}, 400
 
     email = j["email"]
     password = j["password"]

@@ -35,7 +35,7 @@ class AppTestCase(unittest.TestCase):
     '''def test_register_user(self):
         # datos de prueba para el registro de usuario
         user_data = {
-            "email": "test3@example.com",
+            "email": "test5@example.com",
             "username": "testuser",
             "password": "testpassword",
         }
@@ -57,7 +57,7 @@ class AppTestCase(unittest.TestCase):
         
     
     #400
-    def test_register_user_missing_fields(self):
+    def test_register_user_missing_password(self):
         # datos de prueba con campos faltantes para el registro de usuario
         user_data = {
             "email": "test@example.com",
@@ -75,6 +75,67 @@ class AppTestCase(unittest.TestCase):
         self.assertFalse(data["ok"])
         # verificar si la respuesta contiene la clave 'msg' con un mensaje de error
         self.assertIn("msg", data)
+
+
+    def test_register_user_missing_email(self):
+        # datos de prueba con campos faltantes para el registro de usuario
+        user_data = {
+            # Faltando el campo 'email'
+            "username": "testuser",
+            "password": "testpassword",
+        }
+
+        # realizar una solicitud POST a la ruta '/user' con los datos del usuario
+        response = self.client.post("/user", json=user_data)
+        data = json.loads(response.data)
+
+        # verificar si la respuesta tiene un codigo de estado 400 (solicitud incorrecta)
+        self.assertEqual(response.status_code, 400)
+        # verificar si la respuesta contiene la clave 'ok' con valor False
+        self.assertFalse(data["ok"])
+        # verificar si la respuesta contiene la clave 'msg' con un mensaje de error
+        self.assertIn("msg", data)
+    
+
+    def test_register_user_missing_username(self):
+        # datos de prueba con campos faltantes para el registro de usuario
+        user_data = {
+            "email": "test@example.com",
+            # Faltando el campo 'username'
+            "password": "testpassword",
+        }
+
+        # realizar una solicitud POST a la ruta '/user' con los datos del usuario
+        response = self.client.post("/user", json=user_data)
+        data = json.loads(response.data)
+
+        # verificar si la respuesta tiene un codigo de estado 400 (solicitud incorrecta)
+        self.assertEqual(response.status_code, 400)
+        # verificar si la respuesta contiene la clave 'ok' con valor False
+        self.assertFalse(data["ok"])
+        # verificar si la respuesta contiene la clave 'msg' con un mensaje de error
+        self.assertIn("msg", data)
+    
+
+    def test_register_user_missing_all(self):
+        # datos de prueba con campos faltantes para el registro de usuario
+        user_data = {
+            # Faltando el campo 'email'
+            # Faltando el campo 'username'
+            # Faltando el campo 'password'
+        }
+
+        # realizar una solicitud POST a la ruta '/user' con los datos del usuario
+        response = self.client.post("/user", json=user_data)
+        data = json.loads(response.data)
+
+        # verificar si la respuesta tiene un codigo de estado 400 (solicitud incorrecta)
+        self.assertEqual(response.status_code, 400)
+        # verificar si la respuesta contiene la clave 'ok' con valor False
+        self.assertFalse(data["ok"])
+        # verificar si la respuesta contiene la clave 'msg' con un mensaje de error
+        self.assertIn("msg", data)
+    
     
     #409
     def test_register_user_already_registered(self):
@@ -118,7 +179,64 @@ class AppTestCase(unittest.TestCase):
         # verificar si la respuesta tiene un codigo de estado 200 (OK)
         self.assertEqual(response.status_code, 200)
 
-        
+
+    def test_login_user_missing_email(self):
+        # datos de prueba para iniciar sesión
+        user_data = {
+            "type": "regular",
+            # Faltando el campo 'email'
+            "password": "testpassword",
+        }
+
+        # realizar una solicitud POST a la ruta '/user/login' con los datos de inicio de sesion
+        response = self.client.post("/user/login", json=user_data)
+        data = json.loads(response.data)
+
+        # verificar si la respuesta tiene un codigo de estado 400 (solicitud incorrecta)
+        self.assertEqual(response.status_code, 400)
+        # verificar si la respuesta contiene la clave 'ok' con valor False
+        self.assertFalse(data["ok"])
+        # verificar si la respuesta contiene la clave 'msg' con un mensaje de error
+        self.assertIn("msg", data)
+
+    
+    def test_login_user_missing_password(self):
+        # datos de prueba para iniciar sesión
+        user_data = {
+            "type": "regular",
+            "email": "test@example.com",
+            # Faltando el campo 'password'
+        }
+
+        # realizar una solicitud POST a la ruta '/user/login' con los datos de inicio de sesion
+        response = self.client.post("/user/login", json=user_data)
+        data = json.loads(response.data)
+
+        # verificar si la respuesta tiene un codigo de estado 400 (solicitud incorrecta)
+        self.assertEqual(response.status_code, 400)
+        # verificar si la respuesta contiene la clave 'ok' con valor False
+        self.assertFalse(data["ok"])
+        # verificar si la respuesta contiene la clave 'msg' con un mensaje de error
+        self.assertIn("msg", data)
+    
+
+    def test_login_user_missing_all(self):
+        # datos de prueba para iniciar sesión
+        user_data = {
+            # Faltando el campo 'email'
+            # Faltando el campo 'password'
+        }
+
+        # realizar una solicitud POST a la ruta '/user/login' con los datos de inicio de sesion
+        response = self.client.post("/user/login", json=user_data)
+        data = json.loads(response.data)
+
+        # verificar si la respuesta tiene un codigo de estado 400 (solicitud incorrecta)
+        self.assertEqual(response.status_code, 400)
+        # verificar si la respuesta contiene la clave 'ok' con valor False
+        self.assertFalse(data["ok"])
+        # verificar si la respuesta contiene la clave 'msg' con un mensaje de error
+        self.assertIn("msg", data)
 
 #STORY
 
@@ -154,6 +272,36 @@ class AppTestCase(unittest.TestCase):
 
         # Verificamos que la respuesta contenga un campo 'queries' que es una lista (puede estar vacia si no se generaron consultas).
         self.assertIsInstance(data['queries'], list)
+
+    
+    def test_story_prompts_missingStory(self):
+        # iniciamos sesion con el usuario de prueba y obtenemos el token
+        user = {
+            "type": "regular",
+            "email": "test@example.com",
+            "password": "testpassword"
+        }
+        login_response = self.client.post('/user/login', data=json.dumps(user), content_type='application/json')
+        login_data = json.loads(login_response.get_data(as_text=True))
+        token = login_data['token']
+
+        # esta es una historia de prueba que usaremos para la solicitud.
+        story = {}
+
+        # realizamos una peticion POST a la ruta /story/prompts con la historia de prueba
+        # incluimos el token en la cabecera 'Authorization'
+        response = self.client.post('/story/prompts', 
+                                data=json.dumps(story), 
+                                content_type='application/json',
+                                headers={'Authorization': 'Bearer ' + token})
+        data = json.loads(response.get_data(as_text=True))
+
+        # verificar si la respuesta tiene un codigo de estado 400 (solicitud incorrecta)
+        self.assertEqual(response.status_code, 400)
+        # verificar si la respuesta contiene la clave 'ok' con valor False
+        self.assertFalse(data["ok"])
+        # verificar si la respuesta contiene la clave 'msg' con un mensaje de error
+        self.assertIn("msg", data)
 
 
     def test_story_get(self):
@@ -320,7 +468,7 @@ class AppTestCase(unittest.TestCase):
         token = login_data['token']
         
         style = {
-            "style": "futuristic"
+            "style": "cartoon"
         }
 
         response = self.client.post('/style', 
