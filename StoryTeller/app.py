@@ -283,6 +283,32 @@ def get_images():
     return ret, 200
 
 
+@app.route("/story/<int:s_id>", methods=["GET"])
+@jwt_required()
+def get_story(s_id):
+    user_email = get_jwt_identity()
+
+    with get_db().cursor() as cur:
+        cur.execute(
+            """
+        SELECT story_id, title, created_at FROM story
+        WHERE user_email = %s
+        AND story_id = %s
+        """,
+            (user_email, s_id),
+        )
+
+        s = cur.fetchone()
+
+        if s is None:
+            return {"ok": False, "msg": "User does not own such `story_id`."}, 404
+
+    title = s[1]
+    created_at = s[2]
+
+    return {"ok": True, "story_id": s_id, "title": title, "created_at": created_at}, 200
+
+
 @app.route("/story", methods=["GET", "POST"])
 @jwt_required()
 def stories():
