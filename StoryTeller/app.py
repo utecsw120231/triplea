@@ -288,7 +288,7 @@ def get_images():
 def get_story(s_id):
     user_email = get_jwt_identity()
 
-    with get_db().cursor() as cur:
+    with get_db().cursor(row_factory=dict_row) as cur:
         cur.execute(
             """
         SELECT story_id, title, created_at FROM story
@@ -303,10 +303,33 @@ def get_story(s_id):
         if s is None:
             return {"ok": False, "msg": "User does not own such `story_id`."}, 404
 
-    title = s[1]
-    created_at = s[2]
+        title = s["title"]
+        created_at = s["created_at"]
 
-    return {"ok": True, "story_id": s_id, "title": title, "created_at": created_at}, 200
+        ret = {
+            "ok": True,
+            "story_id": s_id,
+            "title": title,
+            "created_at": created_at,
+        }
+
+        if "images" not in request.args:
+            return ret, 200
+
+        cur.execute(
+            """
+            SELECT hash, query FROM image WHERE story_id = %s
+            """,
+            (s_id,),
+        )
+
+        images = [
+            {"url": image_hash_to_url(row["hash"]), "query": row["query"]}
+            for row in cur
+        ]
+        ret["images"] = images
+
+        return ret, 200
 
 
 @app.route("/story", methods=["GET", "POST"])
