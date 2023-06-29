@@ -288,9 +288,11 @@ def get_images():
 
 @app.route("/story/<int:s_id>", methods=["GET"])
 @jwt_required()
-def get_story(s_id):
-    user_email = get_jwt_identity()
+def get_story_route(s_id):
+    return get_story(s_id, get_jwt_identity(), "images" in request.args)
 
+
+def get_story(s_id, user_email, with_images):
     with get_db().cursor(row_factory=dict_row) as cur:
         cur.execute(
             """
@@ -316,7 +318,7 @@ def get_story(s_id):
             "created_at": created_at,
         }
 
-        if "images" not in request.args:
+        if not with_images:
             return ret, 200
 
         cur.execute(
