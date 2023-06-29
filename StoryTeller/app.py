@@ -5,6 +5,7 @@ import inspect
 from io import BytesIO
 
 import boto3
+import botocore
 import flask
 import openai
 from flask import Flask, request
@@ -196,7 +197,11 @@ def get_image(image_hash):
     s3 = boto3.client("s3")
 
     image = BytesIO()
-    s3.download_fileobj("sb-user-images", image_hash, image)
+
+    try:
+        s3.download_fileobj("sb-user-images", image_hash, image)
+    except botocore.exceptions.ClientError:
+        return {"ok": False, "msg": "No such image."}, 404
 
     image.seek(0)
     return flask.send_file(image, mimetype="image/png")
