@@ -90,8 +90,6 @@ def login_regular(email, password):
     if password != user["password"]:
         return {"ok": False, "msg": "Wrong password"}, 401
 
-    expiration_time = str(datetime.datetime.now() + datetime.timedelta(days=1))
-
     token = create_access_token(identity=email)
 
     return {
