@@ -9,9 +9,13 @@ import flask
 import openai
 from flask import Flask, request
 from flask_cors import CORS
-from flask_jwt_extended import (JWTManager, create_access_token, get_jwt,
-                                get_jwt_identity, jwt_required)
-from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+)
 from psycopg.rows import dict_row
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -20,10 +24,6 @@ from db import get_db, init_app
 app = Flask(__name__)
 CORS(app)
 
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = "postgresql://postgres:3141@localhost:5432/storytellerbd"
-db = SQLAlchemy(app)
 
 app.config["JWT_SECRET_KEY"] = "super-secret"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=2)
@@ -35,18 +35,6 @@ app.config["DB_USER"] = "postgres"
 app.config["DB_PASS"] = "REDACTED"
 
 jwt = JWTManager(app)
-
-
-class User(db.Model):
-    email = db.Column(db.String(120), primary_key=True)
-    name = db.Column(db.String(120))
-    password_hash = db.Column(db.String(128))
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
 
 
 @app.route("/user", methods=["POST"])
