@@ -23,7 +23,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from db import get_db, init_app
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, expose_headers=["Content-Type"])
 
 
 app.config["JWT_SECRET_KEY"] = "super-secret"
