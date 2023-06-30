@@ -194,6 +194,23 @@
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": true
+        },
+        {
+          "uuid": "1613a8c3-b298-42ab-ba42-d83607822b55",
+          "body": "{\n  \"msg\": \"No such image.\",\n  \"ok\": false\n}\n",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "No such image",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
         }
       ],
       "enabled": true,
@@ -222,6 +239,23 @@
           "disableTemplating": false,
           "fallbackTo404": false,
           "default": true
+        },
+        {
+          "uuid": "93966f51-7470-4b99-a0bd-831600d93618",
+          "body": "{\n  \"msg\": \"Given `story_id` does not exist associated to this user.\",\n  \"ok\": false\n}\n",
+          "latency": 0,
+          "statusCode": 400,
+          "label": "Given non-valid story_id",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
         }
       ],
       "enabled": true,
@@ -338,6 +372,104 @@
       ],
       "enabled": true,
       "responseMode": null
+    },
+    {
+      "uuid": "940b0167-e07c-49a8-96a4-02852ba641eb",
+      "type": "http",
+      "documentation": "Get information about story",
+      "method": "get",
+      "endpoint": "story/:story_id(\\d+)",
+      "responses": [
+        {
+          "uuid": "682a9740-023a-4c50-b2f6-0b5a125b8219",
+          "body": "{\n  \"created_at\": \"Fri, 16 Jun 2023 15:09:58 GMT\",\n  \"ok\": true,\n  \"story_id\": \"{{urlParam 'story_id'}}\",\n  \"title\": \"StoryName-{{urlParam 'story_id'}}\"\n}\n  ",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Without images",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        },
+        {
+          "uuid": "d1640807-d36d-4a59-ba50-78661dc02970",
+          "body": "{\n  \"created_at\": \"Fri, 16 Jun 2023 15:09:58 GMT\",\n  \"ok\": true,\n  \"story_id\": \"{{urlParam 'story_id'}}\",\n  \"title\": \"StoryName-{{urlParam 'story_id'}}\",\n  \"images\": [\n    {\n      \"query\": \"A yellow bear plushie\",\n      \"url\": \"/image/8acbf9051bca2f29b253fe6e241701f4dfee0ab0141c16c089b82de570f4e22b\"\n    },\n    {\n      \"query\": \"A green bear plushie\",\n      \"url\": \"/image/c7d24c5f8066ef9210869fa93aab08a33ff866b00890dcc9ab204a29ea0def10\"\n    },\n    {\n      \"query\": \"A green bear plushie\",\n      \"url\": \"/image/29714f39eb3eeb9439cb3337b8f16e03a6c62707e4beef866ccbc8f147dae22e\"\n    },\n    {\n      \"query\": \"A red bear plushie\",\n      \"url\": \"/image/a4e0232787c566d9506a277c17bc8c659b1892e2014f1b1b58ff8240cdfe92d9\"\n    }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "With images",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            {
+              "target": "query",
+              "modifier": "images",
+              "value": "",
+              "invert": true,
+              "operator": "null"
+            }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        },
+        {
+          "uuid": "f0edfc7c-ca8f-4606-9fd5-4edf79aa5a0d",
+          "body": "{\n  \"msg\": \"User does not own such `story_id`.\",\n  \"ok\": false\n}\n",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "No such history",
+          "headers": [],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
+    },
+    {
+      "uuid": "ec3f8af8-2d87-47e4-b18f-fd38a100f189",
+      "type": "http",
+      "documentation": "",
+      "method": "get",
+      "endpoint": "story/:story_id(\\d+)/zip",
+      "responses": [
+        {
+          "uuid": "b2373cd5-497c-41f0-8418-13cb474c97df",
+          "body": "{}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Zip created",
+          "headers": [],
+          "bodyType": "FILE",
+          "filePath": "./1-S1.zip",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true
+        }
+      ],
+      "enabled": true,
+      "responseMode": null
     }
   ],
   "rootChildren": [
@@ -380,6 +512,14 @@
     {
       "type": "route",
       "uuid": "38c75914-e949-430b-865a-12956a3a413c"
+    },
+    {
+      "type": "route",
+      "uuid": "940b0167-e07c-49a8-96a4-02852ba641eb"
+    },
+    {
+      "type": "route",
+      "uuid": "ec3f8af8-2d87-47e4-b18f-fd38a100f189"
     }
   ],
   "proxyMode": false,
