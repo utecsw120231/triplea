@@ -124,7 +124,7 @@
       "responses": [
         {
           "uuid": "d0cc82f9-e378-4855-a96f-e0285f4fe855",
-          "body": "{\n  \"ok\": true,\n  \"queries\": [\n    \"1. Generate an image of a soft and fluffy rabbit.\",\n    \"2. Generate an image of a toybox with a lid.\",\n    \"3. Generate an image of a boy opening a toybox.\",\n    \"4. Generate an image of a boy picking up a rabbit from the toybox.\",\n    \"5. Generate an image of newer, brighter toys with special tricks inside the toybox.\",\n    \"6. Generate an image of buttons on one of the new toys.\",\n    \"7. Generate an image of a toy moving in response to a button press.\",\n    \"8. Generate an image of a toy bouncing high.\",\n    \"9. Generate an image of the Velveteen Rabbit sitting quietly among the new toys.\",\n    \"10. Generate an image of the other toys talking with pride.\",\n    \"11. Generate an image of the Velveteen Rabbit looking sad.\"\n  ]\n}\n\n",
+          "body": "{\n  \"ok\": true,\n  \"queries\": [\n    \"1. Generate an image of a soft and fluffy rabbit.\",\n    \"2. Generate an image of a toybox with a lid.\",\n    \"3. Generate an image of a boy opening a toybox.\",\n    \"4. Generate an image of a boy picking up a rabbit from the toybox.\",\n    \"5. Generate an image of newer, brighter toys with special tricks inside the toybox.\",\n    \"6. Generate an image of buttons on one of the new toys.\",\n    \"7. Generate an image of a toy moving in response to a button press.\",\n    \"8. Generate an image of a toy bouncing high.\",\n    \"9. Generate an image of the Velveteen Rabbit sitting quietly among the new toys.\",\n    \"10. Generate an image of the other toys talking with pride.\",\n    \"11. Generate an image of the Velveteen Rabbit looking sad.\"\n  ]\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "Queries created",
@@ -326,7 +326,7 @@
       "responses": [
         {
           "uuid": "e1351e4f-8bf4-43b1-a57a-11ebc6ca63ea",
-          "body": "{\n  \"ok\": true,\n  \"styles\": [\n    [\n      \"Charles Dana Gibson style.\"\n    ],\n    [\n      \"Antique Grunge style.\"\n    ]\n  ]\n}\n",
+          "body": "{\n  \"ok\": true,\n  \"styles\": [\n    \"Charles Dana Gibson style.\",\n    \"Antique Grunge style.\"\n  ]\n}",
           "latency": 0,
           "statusCode": 200,
           "label": "",
