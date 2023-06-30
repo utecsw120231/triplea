@@ -2,6 +2,10 @@ import base64
 import datetime
 import hashlib
 import inspect
+import os
+import pathlib
+import tempfile
+import zipfile
 from io import BytesIO
 
 import boto3
@@ -335,6 +339,60 @@ def get_story(s_id, user_email, with_images):
         ret["images"] = images
 
         return ret, 200
+
+
+@app.route("/story/<int:s_id>/zip", methods=["GET"])
+@jwt_required()
+def get_story_image_zip(s_id):
+    user_email = get_jwt_identity()
+
+    with get_db().cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+        SELECT story_id, title, created_at FROM story
+        WHERE user_email = %s
+        AND story_id = %s
+        """,
+            (user_email, s_id),
+        )
+
+        s = cur.fetchone()
+
+        if s is None:
+            return {"ok": False, "msg": "User does not own such `story_id`."}, 404
+
+        title = s["title"]
+
+        cur.execute(
+            """
+            SELECT hash FROM image WHERE story_id = %s
+            """,
+            (s_id,),
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir = pathlib.Path(temp_dir)
+            images_directory = temp_dir / "images"
+            os.makedirs(images_directory)
+
+            for h in (r["hash"] for r in cur):
+                with open(images_directory / f"{h}.png", "wb") as h_fp:
+                    image = image_from_s3(h)
+                    h_fp.write(image.read())
+
+            zip_filename = temp_dir / f"{s_id}-{title}.zip"
+            with zipfile.ZipFile(zip_filename, mode="w") as archive:
+                for file_path in images_directory.iterdir():
+                    archive.write(file_path, arcname=file_path.name)
+
+            return (
+                flask.send_file(
+                    zip_filename,
+                    mimetype="application/zip",
+                    as_attachment=True,
+                ),
+                200,
+            )
 
 
 @app.route("/story", methods=["GET", "POST"])
