@@ -51,7 +51,8 @@ def register_user():
     password = j["password"]
 
     dynamodb = boto3.resource("dynamodb")
-    table = dynamodb.Table("storyteller_bot")
+    table_name = app.config['DYNAMODB_USERS_TABLE']
+    table = dynamodb.Table(table_name)
 
     response = table.get_item(Key={"user_email": email, "type": "user"})
 
@@ -75,7 +76,8 @@ def login_regular(email, password):
     secret = "my_secret_key"
 
     dynamodb = boto3.resource("dynamodb")
-    table = dynamodb.Table("storyteller_bot")
+    table_name = app.config['DYNAMODB_USERS_TABLE']
+    table = dynamodb.Table(table_name)
 
     response = table.get_item(Key={"user_email": email, "type": "user"})
 
@@ -140,7 +142,8 @@ def get_dalle_images(query, n=1, size="256x256"):
         image = base64.b64decode(image_b64)
         image_hash = hashlib.sha256(image).hexdigest()
 
-        s3.upload_fileobj(BytesIO(image), "sb-user-images", image_hash)
+        bucket_name = app.config['S3_IMAGES_BUCKET']
+        s3.upload_fileobj(BytesIO(image), bucket_name, image_hash)
 
         ret.append(image_hash)
 
