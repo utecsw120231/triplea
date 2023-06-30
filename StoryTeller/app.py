@@ -229,7 +229,7 @@ def generate_images():
     if "story_id" not in j:
         return {"ok": False, "msg": "Missing `story_id`."}, 400
     if type(j["story_id"]) != int:
-        return {"ok": False, "msg": "`story_id` must be an integer"}
+        return {"ok": False, "msg": "`story_id` must be an integer"}, 400
 
     query = j["query"]
     story_id = j["story_id"]
@@ -245,7 +245,7 @@ def generate_images():
             (story_id,),
         )
         if cur.fetchone() is None:
-            return {"ok": False, "msg": "Given `story_id` does not exist."}
+            return {"ok": False, "msg": "Given `story_id` does not exist."}, 400
 
     if not for_real:
         images = ["https://picsum.photos/256/256" for _ in range(n_images)]
