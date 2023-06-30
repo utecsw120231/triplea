@@ -454,7 +454,8 @@ def styles():
                 (user_email,),
             )
 
-            return {"ok": True, "styles": cur.fetchall()}, 200
+            styles = [t[0] for t in cur.fetchall()]
+            return {"ok": True, "styles": styles}, 200
 
     j = request.json
 
