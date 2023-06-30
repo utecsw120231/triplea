@@ -472,6 +472,7 @@ def styles():
     return {"ok": True}, 200
 
 
+init_app(app)
+
 if __name__ == "__main__":
-    init_app(app)
     app.run(debug=True, port=8080)
