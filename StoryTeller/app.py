@@ -29,15 +29,8 @@ from db import get_db, init_app
 app = Flask(__name__)
 CORS(app, expose_headers=["Content-Type"])
 
-
-app.config["JWT_SECRET_KEY"] = "super-secret"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=2)
-
-app.config[
-    "DB_HOST"
-] = "storyteller-bot-instance-1.cwtcnyqx5tws.us-east-1.rds.amazonaws.com"
-app.config["DB_USER"] = "postgres"
-app.config["DB_PASS"] = "REDACTED"
+app.config.from_prefixed_env(loads=lambda x: x)
 
 jwt = JWTManager(app)
 
