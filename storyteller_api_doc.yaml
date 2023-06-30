@@ -3,20 +3,19 @@ info:
   title: Story Teller API
   description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
   version: 0.1.9
+
 servers:
   - url: http://<domain>/
     description: API
+
 paths:
   /user:
     post:
-      summary: Maneja el registro del usuario.
+      summary: Registra un usuario
       description: Verificar que todos los campos del form de registro han sido llenados correctamente, y  verifica en la base de datos si ya existe el usuario.
       tags:
         - Users
-      parameters:
-        - in: query
-          name: Form de registro
-          description: Json con los datos nesesarios para el registro de un usuario.
+      requestBody:
           content:
             application/json:
               schema:
@@ -28,43 +27,43 @@ paths:
                     type: string
                   password:
                     type: string
-            
+
       responses:
         '400':    # status code
-          description: Alguno o varios de los campos recibidos están vacios. 
+          description: Alguno o varios de los campos recibidos están vacios.
           content:
             application/json:
-              schema: 
+              schema:
                 type: object
-                properties: 
+                properties:
                   ok:
                     type: boolean
                     example: false
                   msg:
                     type: string
                     example: Missing username
-                    
+
         '409':    # status code
-          description: Ya existe un usuario que se ha registrado con el mismo email. 
+          description: Ya existe un usuario que se ha registrado con el mismo email.
           content:
             application/json:
-              schema: 
+              schema:
                 type: object
-                properties: 
+                properties:
                   ok:
                     type: boolean
                     example: false
                   msg:
                     type: string
                     example: Email is already registered
-                    
+
         '200':    # status code
-          description: Registro y logueo realizados con éxiito. 
+          description: Registro y logueo realizados con éxiito.
           content:
             application/json:
-              schema: 
+              schema:
                 type: object
-                properties: 
+                properties:
                   ok:
                     type: boolean
                     example: true
@@ -86,31 +85,26 @@ paths:
       description: Verificar que los parametros de logueo son correctos y realizar la consulta a la base de datos para obtener la información del usuario
       tags:
         - Users
-      parameters:
-        - in: query
-          name: Form de logueo
-          description: Json con los datos nesesarios para el logueo de un usuario.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '400':    # status code
+          description: Alguno o varios de los campos recibidos están vacios.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  type:
-                    type: string
-                  token:
-                    type: string
-                  email:
-                    type: string
-                  password:
-                    type: string
-      responses:
-        '400':    # status code
-          description: Alguno o varios de los campos recibidos están vacios. 
-          content:
-            application/json:
-              schema: 
-                type: object
-                properties: 
                   ok:
                     type: boolean
                     example: false
@@ -118,12 +112,12 @@ paths:
                     type: string
                     example: Missing type
         '500':    # status code
-          description: Loguin con googleauth no implementado. 
+          description: Loguin con googleauth no implementado.
           content:
             application/json:
-              schema: 
+              schema:
                 type: object
-                properties: 
+                properties:
                   ok:
                     type: boolean
                     example: false
@@ -131,12 +125,12 @@ paths:
                     type: string
                     example: Not implemented
         '404':    # status code
-          description: El usuario ingresado no existe en la base de datos. 
+          description: El usuario ingresado no existe en la base de datos.
           content:
             application/json:
-              schema: 
+              schema:
                 type: object
-                properties: 
+                properties:
                   ok:
                     type: boolean
                     example: false
@@ -147,9 +141,9 @@ paths:
           description: Contraseña incorrecta.
           content:
             application/json:
-              schema: 
+              schema:
                 type: object
-                properties: 
+                properties:
                   ok:
                     type: boolean
                     example: false
@@ -157,12 +151,12 @@ paths:
                     type: string
                     example: Wrong password
         '200':    # status code
-          description: Logueo realizado con éxito. 
+          description: Logueo realizado con éxito.
           content:
             application/json:
-              schema: 
+              schema:
                 type: object
-                properties: 
+                properties:
                   ok:
                     type: boolean
                     example: true
@@ -182,13 +176,10 @@ paths:
   /image/create:
     post:
       summary: Crea las imagenes a partir de una query
-      description: Crea las imagenes con DALL-E y las guarda en la base de datos. 
+      description: Crea las imagenes con DALL-E y las guarda en la base de datos.
       tags:
         - Images
-      parameters:
-        - in: query
-          name: Form de registro
-          description: Json con los datos nesesarios para el registro de un usuario.
+      requestBody:
           content:
             application/json:
               schema:
@@ -198,50 +189,49 @@ paths:
                     type: string
                     example: dall-e query
                   story_id:
-                    type: string
+                    type: integer
                   for_real:
-                    type: string
-                    example: boolean
+                    type: boolean
                   n_images:
-                    type: string
-                    example: integer
-            
+                    type: integer
+                    example: 1
+
       responses:
         '400':    # status code
-          description: Alguno o varios de los campos recibidos están vacios. 
+          description: Alguno o varios de los campos recibidos están vacios.
           content:
             application/json:
-              schema: 
+              schema:
                 type: object
-                properties: 
+                properties:
                   ok:
                     type: boolean
                     example: false
                   msg:
                     type: string
                     example: Missing query
-                    
+
         '409':    # status code
-          description: No se encontró historia con la id dada. 
+          description: No se encontró historia con la id dada.
           content:
             application/json:
-              schema: 
+              schema:
                 type: object
-                properties: 
+                properties:
                   ok:
                     type: boolean
                     example: false
                   msg:
                     type: string
                     example: Given `story_id` does not exist.
-                    
+
         '200':    # status code
           description: Se generaron las imagenes correctamente y se insertaron en la base de datos.
           content:
             application/json:
-              schema: 
+              schema:
                 type: object
-                properties: 
+                properties:
                   ok:
                     type: boolean
                     example: true
@@ -249,30 +239,49 @@ paths:
                     type: array
                     items:
                       type: string
-                    example: ['url1', 'url2', ..., 'urln']
-                    
+                    example: ["/image/hash1", "/image/hash2", ..., "/image/hashn"]
+
   /image/{image_hash}:
     get:
-      summary: Devuelve una imagen en especifico con id {image_hash}
+      summary: Devuelve la imagen con el hash especificado
       tags:
         - Images
       parameters:
         - in: path
           name: image_hash
+          description: Hash de la imagen a obtener
           required: true
           schema:
             type: string
-            
+
       responses:
         '200':
           description: Envia un archivo png al cliente
-  
+          content:
+            application/png:
+              example: Imagen resultado
+
+        '404':
+          description: Imagen no encontrada asociada al usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: False
+                  msg:
+                    type: string
+                    example: No such image.
+
   /image:
     get:
       summary: Retrieve images
-      description: Devuelve una lista de imagenes asociados con su respectiva query.
+      description: Devuelve las imágenes asociadas al usuario agrupadas por su `story_id`.
       tags:
         - Images
+
       responses:
         '200':
           description: Successful operation
@@ -284,20 +293,21 @@ paths:
                   story_id:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        query:
-                          type: string
-                          example: El lobo sopló con fuerza la casa de cemento
-                        url:
-                          type: string
-                          example: https://www.images.com/h1l4.jpg
+                      type: array
+                      items:
+                        oneOf:
+                          - type: string
+                            example: El lobo sopló con fuerza la casa de cemento
+                          - type: integer
+                            example: "/image/8acbf9051bca2f29b253fe6e241701f4dfee0ab0141c16c089b82de570f4e22b"
+
   /story:
     get:
       summary: Obtener historias
       description: Obtiene una lista de historias asociadas al usuario autenticado.
       tags:
         - Story query
+
       responses:
         '200':
           description: Operación exitosa
@@ -311,17 +321,22 @@ paths:
                   stories:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        story_id:
-                          type: integer
-                        title:
-                          type: string
-                        created_at:
-                          type: string
+                      type: array
+                      items:
+                        oneOf:
+                          - type: integer
+                            example: 1
+                            description: story_id
+                          - type: string
+                            description: Nombre de historia
+                            example: Title_1
+                          - type: string
+                            description: Fecha de creación
+                            example: "Fri, 16 Jun 2023 15:09:58 GMT"
+
     post:
       summary: Crear historia
-      description: Crea una nueva historia para el usuario autenticado.
+      description: Crea una nueva historia asociada al usuario autenticado
       tags:
         - Story query
       requestBody:
@@ -334,6 +349,7 @@ paths:
                 title:
                   type: string
                   description: Título de la historia a crear.
+
       responses:
         '200':
           description: Operación exitosa
@@ -346,6 +362,7 @@ paths:
                     type: boolean
                   story_id:
                     type: integer
+
   /story/prompts:
     post:
       summary: Crear consultas
@@ -362,6 +379,7 @@ paths:
                 story:
                   type: string
                   description: La historia para la cual generar las consultas.
+
       responses:
         '200':
           description: Operación exitosa
@@ -377,13 +395,14 @@ paths:
                     items:
                       type: string
                     example: [query1, query2, ..., queryn]
-  
+
   /style:
     get:
       summary: Obtener estilos
       description: Obtiene una lista de estilos asociados al usuario autenticado.
       tags:
         - Style
+
       responses:
         '200':
           description: Operación exitosa
@@ -398,6 +417,7 @@ paths:
                     type: array
                     items:
                       type: string
+
     post:
       summary: Crear estilo
       description: Crea un nuevo estilo para el usuario autenticado.
@@ -413,6 +433,7 @@ paths:
                 style:
                   type: string
                   description: El estilo a crear.
+
       responses:
         '200':
           description: Operación exitosa
@@ -423,11 +444,3 @@ paths:
                 properties:
                   ok:
                     type: boolean
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
