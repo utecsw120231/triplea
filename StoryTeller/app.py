@@ -236,16 +236,22 @@ def generate_images():
     for_real = j.get("for_real", False)
     n_images = j.get("n_images", 1)
 
+    user_email = get_jwt_identity()
+
     with get_db().cursor() as cur:
         cur.execute(
             """
             SELECT * FROM story
             WHERE story_id = %s
+            AND user_email = %s
             """,
-            (story_id,),
+            (story_id, user_email),
         )
         if cur.fetchone() is None:
-            return {"ok": False, "msg": "Given `story_id` does not exist."}, 400
+            return {
+                "ok": False,
+                "msg": "Given `story_id` does not exist associated to this user.",
+            }, 400
 
     if not for_real:
         images = ["https://picsum.photos/256/256" for _ in range(n_images)]
