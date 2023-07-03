@@ -3,4 +3,4 @@ openai
 flask
 flask_cors
 flask_jwt_extended
-psycopg_binary
+psycopg
