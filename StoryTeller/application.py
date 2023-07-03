@@ -200,7 +200,6 @@ def image_from_s3(image_hash):
 
 
 @app.route("/image/<image_hash>", methods=["GET"])
-@jwt_required()
 def get_image(image_hash):
     try:
         image = image_from_s3(image_hash)
