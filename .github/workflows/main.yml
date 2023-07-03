@@ -13,7 +13,11 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Generate deployment package
-      run: zip -j deploy.zip ./StoryTeller/application.py ./StoryTeller/db.py ./StoryTeller/requirements.txt
+      run: |
+        cd StoryTeller
+        zip ../deploy.zip application.py db.py requirements.txt
+        cd ..
+        zip -sf deploy.zip
 
     - name: Deploy to EB
       uses: einaregilsson/beanstalk-deploy@v21
