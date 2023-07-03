@@ -239,8 +239,9 @@ class AppTestCase(unittest.TestCase):
         self.assertIn("msg", data)
 
 #STORY
+    # NO CORRER PARA EVITAR UTILIZAR CREDITOS DE OPENAI
 
-    def test_story_prompts(self):
+    '''def test_story_prompts(self):
         # iniciamos sesion con el usuario de prueba y obtenemos el token
         user = {
             "type": "regular",
@@ -271,7 +272,7 @@ class AppTestCase(unittest.TestCase):
         self.assertEqual(data['ok'], True)
 
         # Verificamos que la respuesta contenga un campo 'queries' que es una lista (puede estar vacia si no se generaron consultas).
-        self.assertIsInstance(data['queries'], list)
+        self.assertIsInstance(data['queries'], list)'''
 
     
     def test_story_prompts_missingStory(self):
@@ -359,7 +360,9 @@ class AppTestCase(unittest.TestCase):
         #self.assertIsInstance(data['story_id'], int)
     
 
-    def test_create_images(self):
+    # NO CORRER PARA EVITAR UTILIZAR CREDITOS DE OPENAI
+    
+    '''def test_create_images(self):
         # iniciamos sesion con el usuario de prueba y obtenemos el token
         user = {
             "type": "regular",
@@ -395,7 +398,7 @@ class AppTestCase(unittest.TestCase):
         self.assertEqual(len(data["images"]), images_data["n_images"])
 
         # verificar si la respuesta tiene un codigo de estado 200 (OK)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)'''
 
 
     def test_image_hash(self):
@@ -476,11 +479,49 @@ class AppTestCase(unittest.TestCase):
                                 content_type='application/json',
                                 headers={'Authorization': 'Bearer ' + token})
         data = json.loads(response.get_data(as_text=True))
-        print(data)
+        #print(data)
         
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(data['ok'], True)'''
+    
+
+    def test_story_route(self):
+        # iniciamos sesion con el usuario de prueba y obtenemos el token
+        user = {
+            "type": "regular",
+            "email": "test@example.com",
+            "password": "testpassword"
+        }
+        login_response = self.client.post('/user/login', data=json.dumps(user), content_type='application/json')
+        login_data = json.loads(login_response.get_data(as_text=True))
+        token = login_data['token']
+
+        response = self.client.get(
+            "/story/4",
+            headers={'Authorization': 'Bearer ' + token},
+        )
+        
+        self.assertEqual(response.status_code, 200)
+
+    
+    def test_story_image_zip(self):
+        # iniciamos sesion con el usuario de prueba y obtenemos el token
+        user = {
+            "type": "regular",
+            "email": "test@example.com",
+            "password": "testpassword"
+        }
+        login_response = self.client.post('/user/login', data=json.dumps(user), content_type='application/json')
+        login_data = json.loads(login_response.get_data(as_text=True))
+        token = login_data['token']
+
+        response = self.client.get(
+            "/story/4/zip",
+            headers={'Authorization': 'Bearer ' + token},
+        )
+        
+        self.assertEqual(response.status_code, 200)
         
 
 

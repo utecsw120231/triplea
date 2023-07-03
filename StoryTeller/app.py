@@ -2,51 +2,37 @@ import base64
 import datetime
 import hashlib
 import inspect
+import os
+import pathlib
+import tempfile
+import zipfile
 from io import BytesIO
 
 import boto3
+import botocore
 import flask
 import openai
 from flask import Flask, request
 from flask_cors import CORS
-from flask_jwt_extended import (JWTManager, create_access_token, get_jwt,
-                                get_jwt_identity, jwt_required)
-from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    get_jwt,
+    get_jwt_identity,
+    jwt_required,
+)
 from psycopg.rows import dict_row
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from db import get_db, init_app
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, expose_headers=["Content-Type"])
 
-app.config[
-    "SQLALCHEMY_DATABASE_URI"
-] = "postgresql://postgres:3141@localhost:5432/storytellerbd"
-db = SQLAlchemy(app)
-
-app.config["JWT_SECRET_KEY"] = "super-secret"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=2)
-
-app.config[
-    "DB_HOST"
-] = "storyteller-bot-instance-1.cwtcnyqx5tws.us-east-1.rds.amazonaws.com"
-app.config["DB_USER"] = "postgres"
-app.config["DB_PASS"] = "REDACTED"
+app.config.from_prefixed_env(loads=lambda x: x)
 
 jwt = JWTManager(app)
-
-
-class User(db.Model):
-    email = db.Column(db.String(120), primary_key=True)
-    name = db.Column(db.String(120))
-    password_hash = db.Column(db.String(128))
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
 
 
 @app.route("/user", methods=["POST"])
@@ -65,7 +51,8 @@ def register_user():
     password = j["password"]
 
     dynamodb = boto3.resource("dynamodb")
-    table = dynamodb.Table("storyteller_bot")
+    table_name = app.config['DYNAMODB_USERS_TABLE']
+    table = dynamodb.Table(table_name)
 
     response = table.get_item(Key={"user_email": email, "type": "user"})
 
@@ -89,7 +76,8 @@ def login_regular(email, password):
     secret = "my_secret_key"
 
     dynamodb = boto3.resource("dynamodb")
-    table = dynamodb.Table("storyteller_bot")
+    table_name = app.config['DYNAMODB_USERS_TABLE']
+    table = dynamodb.Table(table_name)
 
     response = table.get_item(Key={"user_email": email, "type": "user"})
 
@@ -100,8 +88,6 @@ def login_regular(email, password):
 
     if password != user["password"]:
         return {"ok": False, "msg": "Wrong password"}, 401
-
-    expiration_time = str(datetime.datetime.now() + datetime.timedelta(days=1))
 
     token = create_access_token(identity=email)
 
@@ -156,7 +142,8 @@ def get_dalle_images(query, n=1, size="256x256"):
         image = base64.b64decode(image_b64)
         image_hash = hashlib.sha256(image).hexdigest()
 
-        s3.upload_fileobj(BytesIO(image), "sb-user-images", image_hash)
+        bucket_name = app.config['S3_IMAGES_BUCKET']
+        s3.upload_fileobj(BytesIO(image), bucket_name, image_hash)
 
         ret.append(image_hash)
 
@@ -202,15 +189,24 @@ def create_queries():
     return {"ok": True, "queries": ret}
 
 
-@app.route("/image/<image_hash>", methods=["GET"])
-@jwt_required()
-def get_image(image_hash):
+def image_from_s3(image_hash):
     s3 = boto3.client("s3")
-
     image = BytesIO()
     s3.download_fileobj("sb-user-images", image_hash, image)
 
     image.seek(0)
+
+    return image
+
+
+@app.route("/image/<image_hash>", methods=["GET"])
+@jwt_required()
+def get_image(image_hash):
+    try:
+        image = image_from_s3(image_hash)
+    except botocore.exceptions.ClientError:
+        return {"ok": False, "msg": "No such image."}, 404
+
     return flask.send_file(image, mimetype="image/png")
 
 
@@ -229,23 +225,29 @@ def generate_images():
     if "story_id" not in j:
         return {"ok": False, "msg": "Missing `story_id`."}, 400
     if type(j["story_id"]) != int:
-        return {"ok": False, "msg": "`story_id` must be an integer"}
+        return {"ok": False, "msg": "`story_id` must be an integer"}, 400
 
     query = j["query"]
     story_id = j["story_id"]
     for_real = j.get("for_real", False)
     n_images = j.get("n_images", 1)
 
+    user_email = get_jwt_identity()
+
     with get_db().cursor() as cur:
         cur.execute(
             """
             SELECT * FROM story
             WHERE story_id = %s
+            AND user_email = %s
             """,
-            (story_id,),
+            (story_id, user_email),
         )
         if cur.fetchone() is None:
-            return {"ok": False, "msg": "Given `story_id` does not exist."}
+            return {
+                "ok": False,
+                "msg": "Given `story_id` does not exist associated to this user.",
+            }, 400
 
     if not for_real:
         images = ["https://picsum.photos/256/256" for _ in range(n_images)]
@@ -288,6 +290,111 @@ def get_images():
             ret[story_id].append((row["query"], image_hash_to_url(row["hash"])))
 
     return ret, 200
+
+
+@app.route("/story/<int:s_id>", methods=["GET"])
+@jwt_required()
+def get_story_route(s_id):
+    return get_story(s_id, get_jwt_identity(), "images" in request.args)
+
+
+def get_story(s_id, user_email, with_images):
+    with get_db().cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+        SELECT story_id, title, created_at FROM story
+        WHERE user_email = %s
+        AND story_id = %s
+        """,
+            (user_email, s_id),
+        )
+
+        s = cur.fetchone()
+
+        if s is None:
+            return {"ok": False, "msg": "User does not own such `story_id`."}, 404
+
+        title = s["title"]
+        created_at = s["created_at"]
+
+        ret = {
+            "ok": True,
+            "story_id": s_id,
+            "title": title,
+            "created_at": created_at,
+        }
+
+        if not with_images:
+            return ret, 200
+
+        cur.execute(
+            """
+            SELECT hash, query FROM image WHERE story_id = %s
+            """,
+            (s_id,),
+        )
+
+        images = [
+            {"url": image_hash_to_url(row["hash"]), "query": row["query"]}
+            for row in cur
+        ]
+        ret["images"] = images
+
+        return ret, 200
+
+
+@app.route("/story/<int:s_id>/zip", methods=["GET"])
+@jwt_required()
+def get_story_image_zip(s_id):
+    user_email = get_jwt_identity()
+
+    with get_db().cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+        SELECT story_id, title, created_at FROM story
+        WHERE user_email = %s
+        AND story_id = %s
+        """,
+            (user_email, s_id),
+        )
+
+        s = cur.fetchone()
+
+        if s is None:
+            return {"ok": False, "msg": "User does not own such `story_id`."}, 404
+
+        title = s["title"]
+
+        cur.execute(
+            """
+            SELECT hash FROM image WHERE story_id = %s
+            """,
+            (s_id,),
+        )
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_dir = pathlib.Path(temp_dir)
+            images_directory = temp_dir / "images"
+            os.makedirs(images_directory)
+
+            for h in (r["hash"] for r in cur):
+                with open(images_directory / f"{h}.png", "wb") as h_fp:
+                    image = image_from_s3(h)
+                    h_fp.write(image.read())
+
+            zip_filename = temp_dir / f"{s_id}-{title}.zip"
+            with zipfile.ZipFile(zip_filename, mode="w") as archive:
+                for file_path in images_directory.iterdir():
+                    archive.write(file_path, arcname=file_path.name)
+
+            return (
+                flask.send_file(
+                    zip_filename,
+                    mimetype="application/zip",
+                    as_attachment=True,
+                ),
+                200,
+            )
 
 
 @app.route("/story", methods=["GET", "POST"])
@@ -343,7 +450,8 @@ def styles():
                 (user_email,),
             )
 
-            return {"ok": True, "styles": cur.fetchall()}, 200
+            styles = [t[0] for t in cur.fetchall()]
+            return {"ok": True, "styles": styles}, 200
 
     j = request.json
 
@@ -364,6 +472,7 @@ def styles():
     return {"ok": True}, 200
 
 
+init_app(app)
+
 if __name__ == "__main__":
-    init_app(app)
     app.run(debug=True, port=8080)
