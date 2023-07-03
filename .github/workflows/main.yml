@@ -15,7 +15,7 @@ jobs:
     - name: Generate deployment package
       run: |
         cd StoryTeller
-        zip ../deploy.zip application.py db.py requirements.txt
+        zip ../deploy.zip application.py db.py requirements.txt .ebextensions/python.config
         cd ..
         zip -sf deploy.zip
 
