@@ -27,7 +27,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from db import get_db, init_app
 
 app = Flask(__name__)
-CORS(app, expose_headers=["Content-Type"])
+CORS(app)
 
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = datetime.timedelta(hours=2)
 app.config.from_prefixed_env(loads=lambda x: x)
