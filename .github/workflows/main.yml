@@ -28,5 +28,6 @@ jobs:
         application_name: "Storyteller Bot"
         environment_name: "storyteller-bot"
         version_label: 10
+        use_existing_version_if_available: true
         region: us-east-1
         deployment_package: deploy.zip
