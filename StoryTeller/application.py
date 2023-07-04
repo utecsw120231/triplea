@@ -35,6 +35,11 @@ app.config.from_prefixed_env(loads=lambda x: x)
 jwt = JWTManager(app)
 
 
+@app.route("/hello", methods=["GET"])
+def say_hello():
+    return {"ok": True, "msg": "Hello there"}, 200
+
+
 @app.route("/user", methods=["POST"])
 def register_user():
     j = request.json
